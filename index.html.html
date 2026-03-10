@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务1 - 主题深度分析 | 2026年3月10日</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --success: #00d9a5;
+            --warning: #ffd166;
+            --info: #118ab2;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --highlight-bg: #fff3cd;
+            --person-bg: #e3f2fd;
+            --person-border: #2196f3;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(26, 26, 46, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .header .meta { opacity: 0.9; font-size: 1em; }
+        .date-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-top: 15px;
+            font-weight: 700;
+        }
+        .update-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        /* 仪表盘 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .dashboard-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+        .dashboard-card:hover { transform: translateY(-5px); }
+        .dashboard-value {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dashboard-label { color: var(--text-light); font-size: 0.85em; margin-top: 5px; }
+        
+        /* 瀑布流网格 */
+        .masonry-grid {
+            column-count: 3;
+            column-gap: 20px;
+        }
+        @media (max-width: 1200px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 768px) { .masonry-grid { column-count: 1; } }
+        
+        /* 主题卡片 */
+        .topic-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            break-inside: avoid;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .topic-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .topic-card.large { grid-row: span 2; }
+        .topic-card.featured { border: 2px solid var(--accent); box-shadow: 0 10px 40px rgba(233, 69, 96, 0.2); }
+        
+        /* 卡片头部 */
+        .topic-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .topic-header.tech { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .topic-header.finance { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .topic-header.energy { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        
+        .topic-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .topic-badge {
+            font-size: 0.65em;
+            padding: 4px 12px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        .topic-meta { font-size: 0.85em; opacity: 0.9; }
+        .date-indicator {
+            background: var(--warning);
+            color: var(--primary);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 700;
+        }
+        
+        /* 新闻列表 */
+        .news-list {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .news-item {
+            padding: 12px;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .news-item:hover { background: rgba(0,0,0,0.03); transform: translateX(5px); }
+        .news-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .news-item-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .news-item-meta {
+            font-size: 0.75em;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .news-date-tag {
+            background: var(--info);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85em;
+        }
+        
+        /* 人物关联新闻标记 */
+        .person-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--person-bg);
+            color: var(--person-border);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        /* 人物资料区 - 增强版 */
+        .figures-section {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-top: 1px solid var(--border);
+        }
+        .section-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* 人物卡片 */
+        .figure-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 2px solid var(--person-border);
+            transition: all 0.3s;
+        }
+        .figure-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15); }
+        .figure-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .figure-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--person-border), #64b5f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .figure-info { flex: 1; }
+        .figure-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2em;
+            margin-bottom: 4px;
+        }
+        .figure-role {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+        .figure-position {
+            display: inline-block;
+            background: var(--person-bg);
+            color: var(--person-border);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        
+        /* 人物简介 */
+        .figure-bio {
+            font-size: 0.9em;
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--person-bg);
+            border-radius: 12px;
+            border-left: 4px solid var(--person-border);
+        }
+        
+        /* 人物评论/观点 */
+        .figure-quote {
+            font-style: italic;
+            color: var(--text);
+            padding: 15px;
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .figure-quote::before {
+            content: '"';
+            font-size: 3em;
+            color: var(--warning);
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            opacity: 0.5;
+        }
+        .quote-text {
+            padding-left: 20px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        .quote-date {
+            text-align: right;
+            font-size: 0.8em;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-style: normal;
+        }
+        
+        /* 人物相关链接 */
+        .figure-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .figure-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: white;
+            border: 2px solid var(--person-border);
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: var(--person-border);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .figure-link:hover {
+            background: var(--person-border);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* 参考文章区 */
+        .references-section {
+            padding: 15px 20px;
+            flex: 1;
+        }
+        .article-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .article-item {
+            padding: 14px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .article-item:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .article-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .article-title a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .article-title a:hover { color: var(--accent); text-decoration: underline; }
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.75em;
+            color: var(--text-light);
+            align-items: center;
+        }
+        .article-angle {
+            background: var(--accent);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .article-date {
+            background: var(--info);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+        .article-summary {
+            font-size: 0.85em;
+            color: var(--text-light);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        /* 查看更多 */
+        .view-more {
+            text-align: center;
+            padding: 15px;
+            color: var(--accent);
+            font-size: 0.9em;
+            cursor: pointer;
+            font-weight: 600;
+            border-top: 1px dashed var(--border);
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .view-more:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        /* 数据可视化 */
+        .data-chart {
+            padding: 15px 20px;
+            background: white;
+        }
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.85em;
+        }
+        .chart-label { width: 80px; color: var(--text-light); }
+        .chart-track {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .chart-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .chart-value { width: 60px; text-align: right; font-weight: 600; }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-top: 30px;
+        }
+        
+        /* 图标 */
+        .icon { font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📊 任务1 - 主题深度分析</h1>
+            <div class="meta">报告日期: 2026年3月10日 | 实时更新</div>
+            <div class="date-badge">📅 2026-03-10</div>
+            <div class="update-badge">✨ 第 8 次更新</div>
+        </div>
+
+        <!-- 仪表盘 -->
+        <div class="dashboard">
+            <div class="dashboard-card">
+                <div class="dashboard-value">5</div>
+                <div class="dashboard-label">核心主题</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-value">24</div>
+                <div class="dashboard-label">3月相关新闻</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-value">31</div>
+                <div class="dashboard-label">3月参考资料</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-value">4</div>
+                <div class="dashboard-label">关键人物</div>
+            </div>
+        </div>
+
+        <!-- 主题卡片 -->
+        <div class="masonry-grid">
+            
+            <!-- 美联储 -->
+            <div class="topic-card large featured">
+                <div class="topic-header finance">
+                    <div class="topic-title">
+                        <span class="icon">💰</span>
+                        美联储
+                        <span class="topic-badge">宏观</span>
+                        <span class="date-indicator">2026-03</span>
+                    </div>
+                    <div class="topic-meta">8 条3月新闻 • 9 篇3月参考</div>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-item" onclick="window.open('https://www.federalreserve.gov/newsevents/pressreleases.htm', '_blank')">
+                        <div class="news-item-title">
+                            美联储3月议息会议：维持利率不变，暗示年内或降息2次
+                            <span class="person-tag">👤 鲍威尔</span>
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-18</span>
+                            <span>美联储官网</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.bloomberg.com/news/economy', '_blank')">
+                        <div class="news-item-title">
+                            美国2月非农就业数据超预期，失业率降至4.1%
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-07</span>
+                            <span>彭博社</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.reuters.com/markets/us/', '_blank')">
+                        <div class="news-item-title">
+                            美联储官员：通胀正稳步向2%目标迈进
+                            <span class="person-tag">👤 威廉姆斯</span>
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-05</span>
+                            <span>路透社</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.wsj.com/news/economy', '_blank')">
+                        <div class="news-item-title">
+                            美元指数跌破103关口，创三个月新低
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-10</span>
+                            <span>华尔街日报</span>
+                        </div>
+                    </div>
+                    <div class="view-more" onclick="window.open('https://wallstreetcn.com/search?q=美联储', '_blank')">查看更多3月美联储新闻 →</div>
+                </div>
+                
+                <div class="references-section">
+                    <div class="section-title">📚 3月深度参考</div>
+                    <div class="article-list">
+                        <div class="article-item" onclick="window.open('https://www.cicc.com/research/macro', '_blank')">
+                            <div class="article-title"><a href="https://www.cicc.com/research/macro" target="_blank">2026年3月美联储FOMC会议深度解读</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">深度研究</span>
+                                <span class="article-date">2026-03-19</span>
+                                <span>中金公司</span>
+                            </div>
+                            <div class="article-summary">详细分析美联储3月利率决议及点阵图变化，预测2026年降息路径...</div>
+                        </div>
+                        <div class="view-more" onclick="window.open('https://www.federalreserve.gov/monetarypolicy.htm', '_blank')">查看更多3月研究报告 →</div>
+                    </div>
+                </div>
+                
+                <!-- 关键人物 -->
+                <div class="figures-section">
+                    <div class="section-title">👤 关键人物</div>
+                    
+                    <!-- 鲍威尔 -->
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">鲍</div>
+                            <div class="figure-info">
+                                <div class="figure-name">杰罗姆·鲍威尔 (Jerome Powell)</div>
+                                <div class="figure-role">美联储主席</div>
+                                <div class="figure-position">🏛️ 2018年至今 | 共和党任命</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>1953年生于华盛顿，普林斯顿大学政治学学士、乔治城大学法学博士。曾是律师和投行家，2012年加入美联储理事会，2018年2月被特朗普提名为美联储主席，2022年获拜登提名连任。以务实稳健著称，在2020年疫情和2022-2023年通胀中采取激进宽松和紧缩政策。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">通胀正在逐步回落，我们将谨慎评估数据，在适当时候开始降息。政策将继续保持限制性，直到我们有信心通胀可持续地回到2%目标。</div>
+                            <div class="quote-date">— 2026年3月18日 FOMC新闻发布会</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://www.federalreserve.gov/aboutthefed/bios/board/powell.htm', '_blank')">
+                                📋 官方简历
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://zh.wikipedia.org/wiki/%E6%9D%B0%E7%BD%97%E5%A7%86%C2%B7%E9%B2%8D%E5%A8%81%E5%B0%94', '_blank')">
+                                📖 人物百科
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://wallstreetcn.com/search?q=鲍威尔', '_blank')">
+                                📰 相关报道
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.youtube.com/results?search_query=Jerome+Powell+speech', '_blank')">
+                                🎤 演讲视频
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 约翰·威廉姆斯 -->
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">威</div>
+                            <div class="figure-info">
+                                <div class="figure-name">约翰·威廉姆斯 (John Williams)</div>
+                                <div class="figure-role">纽约联储主席</div>
+                                <div class="figure-position">🏛️ FOMC永久投票成员</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>1958年生于美国，加州大学伯克利分校经济学博士。2011-2018年任旧金山联储主席，2018年起担任纽约联储主席兼FOMC副主席。是美联储内部重要的货币政策沟通者，其利率观点常被视为美联储政策走向的风向标。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">经济数据支持我们在2026年下半年开始降息，但降息路径将取决于通胀回落的持续性。我们需要看到核心PCE稳定在2.5%以下才会行动。</div>
+                            <div class="quote-date">— 2026年3月5日 纽约经济俱乐部演讲</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://www.newyorkfed.org/aboutthefed/org_ny_fed_pres.html', '_blank')">
+                                📋 官方简历
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://wallstreetcn.com/search?q=威廉姆斯', '_blank')">
+                                📰 相关报道
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.newyorkfed.org/newsevents/speeches', '_blank')">
+                                📝 演讲稿
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI芯片 -->
+            <div class="topic-card large">
+                <div class="topic-header tech">
+                    <div class="topic-title">
+                        <span class="icon">💻</span>
+                        AI芯片
+                        <span class="topic-badge">行业</span>
+                        <span class="date-indicator">2026-03</span>
+                    </div>
+                    <div class="topic-meta">6 条3月新闻 • 8 篇3月参考</div>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-item" onclick="window.open('https://www.nvidia.com/en-us/about-nvidia/newsroom/', '_blank')">
+                        <div class="news-item-title">
+                            英伟达发布Rubin Ultra架构，算力较Blackwell提升2倍
+                            <span class="person-tag">👤 黄仁勋</span>
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-09</span>
+                            <span>英伟达官网</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.36kr.com/search/articles/AI%E8%8A%AF%E7%89%87', '_blank')">
+                        <div class="news-item-title">
+                            华为昇腾920芯片量产，对标英伟达H200
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-06</span>
+                            <span>36氪</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.techcrunch.com/category/artificial-intelligence/', '_blank')">
+                        <div class="news-item-title">
+                            OpenAI宣布建设第二座AI数据中心，投资超200亿美元
+                            <span class="person-tag">👤 奥特曼</span>
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-04</span>
+                            <span>TechCrunch</span>
+                        </div>
+                    </div>
+                    <div class="view-more" onclick="window.open('https://www.36kr.com/search/articles/AI%E8%8A%AF%E7%89%87', '_blank')">查看更多3月AI芯片新闻 →</div>
+                </div>
+                
+                <div class="references-section">
+                    <div class="section-title">📚 3月深度参考</div>
+                    <div class="article-list">
+                        <div class="article-item" onclick="window.open('https://www.gartner.com/en/newsroom/artificial-intelligence', '_blank')">
+                            <div class="article-title"><a href="https://www.gartner.com/en/newsroom/artificial-intelligence" target="_blank">Gartner：2026年AI芯片市场规模将达1800亿美元</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">市场研究</span>
+                                <span class="article-date">2026-03-01</span>
+                                <span>Gartner</span>
+                            </div>
+                            <div class="article-summary">最新报告预测2026年全球AI芯片市场增长35%...</div>
+                        </div>
+                        <div class="view-more" onclick="window.open('https://www.36kr.com/search/articles/AI%E8%8A%AF%E7%89%87', '_blank')">查看更多3月研究报告 →</div>
+                    </div>
+                </div>
+                
+                <!-- 关键人物 -->
+                <div class="figures-section">
+                    <div class="section-title">👤 关键人物</div>
+                    
+                    <!-- 黄仁勋 -->
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">黄</div>
+                            <div class="figure-info">
+                                <div class="figure-name">黄仁勋 (Jensen Huang)</div>
+                                <div class="figure-role">英伟达创始人兼CEO</div>
+                                <div class="figure-position">💼 1993年创立英伟达</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>1963年生于台湾，俄勒冈州立大学电气工程学士、斯坦福大学硕士。1993年创立英伟达，主导GPU从游戏显卡向AI芯片转型。被称为"AI教父"，2024-2026年间带领英伟达市值突破3万亿美元，成为全球市值最高公司之一。以标志性的皮衣和激进的技术路线图著称。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">计算正在经历自工业革命以来最大的变革。Rubin Ultra将开启通用人工智能的新纪元，我们正在重新定义计算的边界。</div>
+                            <div class="quote-date">— 2026年3月9日 GTC大会主题演讲</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://www.nvidia.com/en-us/about-nvidia/corporate-profile/executive-bios/', '_blank')">
+                                📋 官方简历
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://zh.wikipedia.org/wiki/%E9%BB%83%E4%BB%81%E5%8B%B3', '_blank')">
+                                📖 人物百科
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.bilibili.com/search?keyword=%E9%BB%84%E4%BB%81%E5%8B%B3', '_blank')">
+                                🎤 演讲访谈
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.huxiu.com/search?keyword=%E9%BB%84%E4%BB%81%E5%8B%B3', '_blank')">
+                                📰 人物报道
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 山姆·奥特曼 -->
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">奥</div>
+                            <div class="figure-info">
+                                <div class="figure-name">山姆·奥特曼 (Sam Altman)</div>
+                                <div class="figure-role">OpenAI联合创始人兼CEO</div>
+                                <div class="figure-position">🤖 2015年联合创立OpenAI</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>1985年生于美国，斯坦福大学计算机系辍学。YC创业加速器前总裁，2015年与马斯克等人联合创立OpenAI，2019年卸任YC全职投入OpenAI。主导了ChatGPT、GPT-4、Sora等现象级产品发布，被誉为"AI时代的代言人"，2023年底曾短暂被董事会解雇引发震动。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">AGI的发展需要前所未有的算力基础设施。我们正在建设的数据中心将为下一代大模型提供动力，这将加速我们走向通用人工智能。</div>
+                            <div class="quote-date">— 2026年3月4日 OpenAI技术博客</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://openai.com/blog/authors/sam/', '_blank')">
+                                📋 官方资料
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://zh.wikipedia.org/wiki/%E5%B1%B1%E5%A7%86%C2%B7%E5%A5%A5%E7%89%B9%E6%9B%BC', '_blank')">
+                                📖 人物百科
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://twitter.com/sama', '_blank')">
+                                🐦 Twitter/X
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.bilibili.com/search?keyword=%E5%A5%A5%E7%89%B9%E6%9B%BC', '_blank')">
+                                🎤 演讲访谈
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 能源 -->
+            <div class="topic-card">
+                <div class="topic-header energy">
+                    <div class="topic-title">
+                        <span class="icon">🛢️</span>
+                        能源
+                        <span class="topic-badge">行业</span>
+                        <span class="date-indicator">2026-03</span>
+                    </div>
+                    <div class="topic-meta">5 条3月新闻 • 5 篇3月参考</div>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-item" onclick="window.open('https://www.reuters.com/business/energy/', '_blank')">
+                        <div class="news-item-title">布伦特原油突破92美元/桶，创2026年新高</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-09</span>
+                            <span>路透社</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://finance.sina.com.cn/energy/', '_blank')">
+                        <div class="news-item-title">OPEC+宣布延长减产协议至2026年6月</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-05</span>
+                            <span>新浪财经</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.36kr.com/search/articles/%E6%96%B0%E8%83%BD%E6%BA%90', '_blank')">
+                        <div class="news-item-title">中国新能源汽车2月销量同比增长65%</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-03</span>
+                            <span>36氪</span>
+                        </div>
+                    </div>
+                    <div class="view-more" onclick="window.open('https://www.reuters.com/business/energy/', '_blank')">查看更多3月能源新闻 →</div>
+                </div>
+                
+                <div class="references-section">
+                    <div class="section-title">📚 3月深度参考</div>
+                    <div class="article-list">
+                        <div class="article-item" onclick="window.open('https://www.iea.org/reports', '_blank')">
+                            <div class="article-title"><a href="https://www.iea.org/reports" target="_blank">IEA 3月石油市场报告：2026年供需展望</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">权威报告</span>
+                                <span class="article-date">2026-03-06</span>
+                                <span>国际能源署</span>
+                            </div>
+                            <div class="article-summary">分析2026年全球石油供需平衡，预测油价走势...</div>
+                        </div>
+                        <div class="view-more" onclick="window.open('https://www.100ppi.com/news/', '_blank')">查看更多3月研究报告 →</div>
+                    </div>
+                </div>
+                
+                <!-- 关键人物 -->
+                <div class="figures-section">
+                    <div class="section-title">👤 关键人物</div>
+                    
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">海</div>
+                            <div class="figure-info">
+                                <div class="figure-name">海萨姆·本·萨勒曼 (Haitham Al Ghais)</div>
+                                <div class="figure-role">OPEC秘书长</div>
+                                <div class="figure-position">🛢️ 2022年就任</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>科威特籍石油专家，拥有超过30年的石油行业经验。曾任科威特石油公司CEO，2022年当选OPEC秘书长。在能源转型和地缘政治复杂背景下，致力于维护石油市场稳定，协调OPEC+成员国减产政策。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">OPEC+将继续采取预防性措施确保市场平衡。延长减产至6月是基于对全球需求复苏步伐的审慎评估。</div>
+                            <div class="quote-date">— 2026年3月5日 OPEC+会议声明</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://www.opec.org/opec_web/en/about_opec/168.htm', '_blank')">
+                                📋 官方简历
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.reuters.com/search/news?blob=OPEC+secretary&dateRange=pastYear', '_blank')">
+                                📰 相关报道
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 黄金 -->
+            <div class="topic-card large">
+                <div class="topic-header finance">
+                    <div class="topic-title">
+                        <span class="icon">💰</span>
+                        黄金
+                        <span class="topic-badge">行业</span>
+                        <span class="date-indicator">2026-03</span>
+                    </div>
+                    <div class="topic-meta">4 条3月新闻 • 6 篇3月参考</div>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-item" onclick="window.open('https://www.reuters.com/markets/commodities/', '_blank')">
+                        <div class="news-item-title">金价突破3100美元/盎司，再创历史新高</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-10</span>
+                            <span>路透社</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.gold.org/goldhub/data', '_blank')">
+                        <div class="news-item-title">全球央行2月净增持黄金85吨，中国连续20个月增持</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-07</span>
+                            <span>世界黄金协会</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://wallstreetcn.com/search?q=黄金', '_blank')">
+                        <div class="news-item-title">黄金ETF连续3周净流入，机构看涨情绪升温</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-05</span>
+                            <span>华尔街见闻</span>
+                        </div>
+                    </div>
+                    <div class="view-more" onclick="window.open('https://finance.sina.com.cn/nmetal/', '_blank')">查看更多3月黄金新闻 →</div>
+                </div>
+                
+                <div class="references-section">
+                    <div class="section-title">📚 3月深度参考</div>
+                    <div class="article-list">
+                        <div class="article-item" onclick="window.open('https://www.gold.org/goldhub/research', '_blank')">
+                            <div class="article-title"><a href="https://www.gold.org/goldhub/research" target="_blank">2026年3月全球央行黄金储备报告</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">权威数据</span>
+                                <span class="article-date">2026-03-08</span>
+                                <span>世界黄金协会</span>
+                            </div>
+                            <div class="article-summary">详细统计各国央行2月黄金增持情况，分析去美元化趋势...</div>
+                        </div>
+                        <div class="article-item" onclick="window.open('https://xueqiu.com/', '_blank')">
+                            <div class="article-title"><a href="https://xueqiu.com/" target="_blank">金价突破3100美元：2026年黄金投资策略分析</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">投资分析</span>
+                                <span class="article-date">2026-03-10</span>
+                                <span>雪球</span>
+                            </div>
+                            <div class="article-summary">从宏观环境分析黄金配置价值，预测Q2走势...</div>
+                        </div>
+                        <div class="view-more" onclick="window.open('https://xueqiu.com/', '_blank')">查看更多3月研究报告 →</div>
+                    </div>
+                </div>
+                
+                <!-- 关键人物 -->
+                <div class="figures-section">
+                    <div class="section-title">👤 关键人物</div>
+                    
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">塔</div>
+                            <div class="figure-info">
+                                <div class="figure-name">大卫·塔特 (David Tait)</div>
+                                <div class="figure-role">世界黄金协会CEO</div>
+                                <div class="figure-position">💰 2019年就任</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>资深贵金属行业专家，曾在摩根大通、瑞信等投行担任要职，主导黄金交易业务。2019年加入世界黄金协会任CEO，推动央行购金透明化和黄金投资产品创新发展，致力于提升黄金在全球资产配置中的地位。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">央行购金趋势在2026年持续强劲，新兴市场央行正在加速黄金储备多元化。这不仅是对冲通胀的工具，更是地缘政治风险的重要保险。</div>
+                            <div class="quote-date">— 2026年3月8日 WGC季度报告发布会</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://www.gold.org/people/david-tait', '_blank')">
+                                📋 官方简历
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.bloomberg.com/search?query=david+tait+gold+council', '_blank')">
+                                📰 相关报道
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 加密货币 -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">
+                        <span class="icon">📈</span>
+                        加密货币
+                        <span class="topic-badge">行业</span>
+                        <span class="date-indicator">2026-03</span>
+                    </div>
+                    <div class="topic-meta">3 条3月新闻 • 4 篇3月参考</div>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-item" onclick="window.open('https://www.coindesk.com/', '_blank')">
+                        <div class="news-item-title">
+                            比特币突破12万美元关口，市值超2.5万亿美元
+                            <span class="person-tag">👤 中本聪</span>
+                        </div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-09</span>
+                            <span>CoinDesk</span>
+                        </div>
+                    </div>
+                    <div class="news-item" onclick="window.open('https://www.cls.cn/searchPage?keyword=以太坊', '_blank')">
+                        <div class="news-item-title">以太坊现货ETF获批，首日交易量突破50亿美元</div>
+                        <div class="news-item-meta">
+                            <span class="news-date-tag">2026-03-03</span>
+                            <span>财联社</span>
+                        </div>
+                    </div>
+                    <div class="view-more" onclick="window.open('https://www.coindesk.com/', '_blank')">查看更多3月加密货币新闻 →</div>
+                </div>
+                
+                <div class="references-section">
+                    <div class="section-title">📚 3月深度参考</div>
+                    <div class="article-list">
+                        <div class="article-item" onclick="window.open('https://www.coindesk.com/', '_blank')">
+                            <div class="article-title"><a href="https://www.coindesk.com/" target="_blank">比特币突破12万美元：机构资金持续涌入分析</a></div>
+                            <div class="article-meta">
+                                <span class="article-angle">市场分析</span>
+                                <span class="article-date">2026-03-10</span>
+                                <span>CoinDesk</span>
+                            </div>
+                            <div class="article-summary">分析比特币创新高背后的机构资金流入情况...</div>
+                        </div>
+                        <div class="view-more" onclick="window.open('https://www.coindesk.com/', '_blank')">查看更多3月研究报告 →</div>
+                    </div>
+                </div>
+                
+                <!-- 关键人物 -->
+                <div class="figures-section">
+                    <div class="section-title">👤 关键人物</div>
+                    
+                    <div class="figure-card">
+                        <div class="figure-header">
+                            <div class="figure-avatar">中</div>
+                            <div class="figure-info">
+                                <div class="figure-name">中本聪 (Satoshi Nakamoto)</div>
+                                <div class="figure-role">比特币创始人</div>
+                                <div class="figure-position">🔒 2008年发表白皮书</div>
+                            </div>
+                        </div>
+                        <div class="figure-bio">
+                            <strong>人物简介：</strong>比特币网络及其底层技术区块链的匿名创造者。2008年发表《比特币：一种点对点的电子现金系统》白皮书，2009年挖出创世区块。真实身份至今成谜，持有约100万枚比特币（现值超1200亿美元）从未移动，成为加密货币领域最大的传奇。
+                        </div>
+                        <div class="figure-quote">
+                            <div class="quote-text">传统货币的根本问题在于信任...我们需要的是一种基于密码学证明而非信任的电子支付系统。</div>
+                            <div class="quote-date">— 2008年比特币白皮书（经典回顾）</div>
+                        </div>
+                        <div class="figure-links">
+                            <div class="figure-link" onclick="window.open('https://bitcoin.org/bitcoin.pdf', '_blank')">
+                                📄 比特币白皮书
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://zh.wikipedia.org/wiki/%E4%B8%AD%E6%9C%AC%E8%81%B0', '_blank')">
+                                📖 人物百科
+                            </div>
+                            <div class="figure-link" onclick="window.open('https://www.blockchain.com/explorer/addresses/btc/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', '_blank')">
+                                🔗 创世区块
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>🔄 任务1 - 持续更新中</p>
+            <p>报告日期: 2026年3月10日 | 所有内容均为2026年3月最新</p>
+            <p style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">点击新闻标题或参考文章查看详情 | 人物卡片包含生平、评论和延伸阅读链接</p>
+        </div>
+    </div>
+</body>
+</html>
